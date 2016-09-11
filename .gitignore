@@ -1,0 +1,7 @@
+*.txt
+*.out
+.*
+*.sln
+*.suo
+*.vcxproj
+*.filters
