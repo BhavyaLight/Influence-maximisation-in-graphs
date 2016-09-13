@@ -137,7 +137,6 @@ static void reduceGraph(ColoredGraph& G1, std::vector<leda_edge> newEdges)
 //    k: the number of colors to return.
 //    p: Return type. The sum of the sampling counts of the selected colors.
 // Returns: An ordered list of colors for the top-k colors problem. The colors are ordered as they were selected. The list might contains less than k colors.
-//
 ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, NodeSet& T, int k, double* p)
 {
 	*p = 0;
@@ -153,15 +152,15 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	{
 		topr_paths.push(elem);
 	}
-
-	//Copy all target node id's'
+ 
+	//copy all target nodes to another list
 	Node t;
 	NodeSet unvisited;
 	forall(t,T){
 		unvisited.insert(t);
 	}
-	
 
+	
 	RelationGraph G1;
 	ColoredGraph Gc1;
 	Gc1.Graph = &G1;
@@ -176,12 +175,13 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	ColorSet selected_colors; //for fast lookup
 	
 	bool terminate = false;
-
-    while(unvisited.size() != 0 && topr_paths.size()!=0 && terminate != true) 
+	while(unvisited.size() != 0 && topr_paths.size()!=0 && terminate != true) 
 	{
+		cout<<"PATHS THAT REMAIN"<<endl;
+		cout<<topr_paths<<endl;
 		list<long>::item it;
 		//For each path in the list of top r paths
-		//Delete paths that have the colors that are already selected_colors
+	// 	!!//Delete paths that have the colors that are already selected_colors
 		//Delete the paths that exceed the color limit 
 		forall_items(it, topr_paths) 
 		{
@@ -190,31 +190,31 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 			Path& path = P[i];
 			//Add all colors
 			ColorSet current_colors = getColors(path, G).join(selected_colors);
-			if(current_colors.size() - selected_colors.size() == 0) // current path doesn't add any new colors -> add to selected paths immediately
-			{
-				topr_paths.del_item(it);
+			// if(current_colors.size() - selected_colors.size() == 0) // current path doesn't add any new colors -> add to selected paths immediately
+	// 		{
+	// 			topr_paths.del_item(it);
                 
-				// Add the path to G1
-				// Construct the path from source node s_G1 through all edges in the path till the target edge
-				leda_node u_G1 = s_G1;
-				leda_edge e;
-				Node v_G;
-				forall(e, path)
-				{
-					EdgeAttr e_G = G.Graph->inf(e);
-					if(G.logCapacity) e_G.capacity = exp(-e_G.capacity / 1000);
-					v_G = G.Graph->inf(G.Graph->target(e)).id;	//Return id of the target node of edge e
-					leda_node v_G1 = addNode(G1, v_G, M1); //add node v_G to G, M1[v_G]= the newly created node in G
+	// 			// Add the path to G1
+	// 			// Construct the path from source node s_G1 through all edges in the path till the target edge
+	// 			leda_node u_G1 = s_G1;
+	// 			leda_edge e;
+	// 			Node v_G;
+	// 			forall(e, path)
+	// 			{
+	// 				EdgeAttr e_G = G.Graph->inf(e);
+	// 				if(G.logCapacity) e_G.capacity = exp(-e_G.capacity / 1000);
+	// 				v_G = G.Graph->inf(G.Graph->target(e)).id;	//Return id of the target node of edge e
+	// 				leda_node v_G1 = addNode(G1, v_G, M1); //add node v_G to G, M1[v_G]= the newly created node in G
 
-					G1.new_edge(u_G1, v_G1, e_G);     
-					if(!G.directed) G1.new_edge(v_G1, u_G1, e_G);
-					u_G1 = v_G1;
-				}
-				if (unvisited.member(v_G)) unvisited.del(v_G);
-				pNeedsRefresh = true;
-			}
-			// if it is >k, simply delete the path 
-			else if(current_colors.size() > k)
+	// 				G1.new_edge(u_G1, v_G1, e_G);     
+	// 				if(!G.directed) G1.new_edge(v_G1, u_G1, e_G);
+	// 				u_G1 = v_G1;
+	// 			}
+	// 			if (unvisited.member(v_G)) unvisited.del(v_G);
+	// 			pNeedsRefresh = true;
+	// 		}
+	// 		// if it is >k, simply delete the path 
+			if(current_colors.size() > k)
 			{
 				topr_paths.del_item(it);
 			}
@@ -257,7 +257,8 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 			{
 				best_path_count = count;
 				best_path_item = it;
-				visited_target=v_G;
+				// This is because the last node will always by -2
+				visited_target=G.Graph->inf(G.Graph->source(e)).id;
 			}
 
 			*p = std::max(*p, count);
@@ -293,12 +294,29 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 				}
 			}
 			unvisited.del(visited_target);
-			// del_all_paths_to_target
-			// TODO------------------------------------------------------------------------------------------------------------------
 			pNeedsRefresh = false;
+			//Delete all the paths of the visited_target
+			list<long>::item it;
+			forall_items(it, topr_paths) //remove all path with the visited target
+			{
+				//Get the path
+				Node lastnode;
+				int i = topr_paths.contents(it);
+				Path& path = P[i];
+				leda_edge e=path.tail();
+				lastnode=G.Graph->inf(G.Graph->source(e)).id;
+				if (lastnode == visited_target){
+					topr_paths.del_item(it);
+				}
+			}
 		}
 		else
 			terminate = true; //paths finished
+	cout<<"NODES THAT REMAIN"<<endl;
+	Node tempo;
+	forall(tempo,unvisited){
+	cout<<tempo<<endl;
+	}
 
     } //end while
 	
@@ -310,6 +328,70 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	}
 	return L1;
 }
+
+// ColorList* const topKColorsOfMaxTarget2(h_array<Node,PathSet>& topPath, ColoredGraph& G, Node s, NodeSet& T, int k, double* p)
+// {
+// 	*p = 0;
+// 	bool pNeedsRefresh = false;
+// 	random_source S(1,10);
+
+// 	//init top-r paths from P
+// 	list<long> topr_paths; //= P;
+// 	topr_paths.clear();
+// 	long elem;
+// 	PathSet P,path;
+// 	// Copy all paths into another list
+// 	forall(path,topPath){
+// 	forall_defined(elem, path);
+// 		topr_paths.push(elem);
+// 		P[elem]=path[elem];
+// 	}
+// 	cout<<"TOP R PATH LIST"<<endl;
+// 	cout<<topr_paths<<endl;
+// 	cout<<printPathSet(P)<<endl;
+
+// 	//Copy all target node id's'
+// 	Node t;
+// 	NodeSet unvisited;
+// 	forall(t,T){
+// 		unvisited.insert(t);
+// 	}
+// 	cout<<"TARGET NODES"<<endl;
+// 	forall(t,unvisited){
+// 	cout<<t<<endl;
+// 	}
+
+// 	// 	//Delete all paths related to this univisited target
+// 	// Path P;
+// 	// Node nada=3;
+// 	// PathSet temp_del=topPath[3];
+// 	// list<long>::item it;
+// 	// forall_items(it,topr_paths){
+// 	// 	int tpath=topr_paths.contents(it);
+// 	// 	forall()
+// 	// }
+
+// 	cout<<"TOP R PATH LIST"<<endl;
+// 	cout<<topr_paths<<endl;
+
+// 	RelationGraph G1;
+// 	ColoredGraph Gc1;
+// 	Gc1.Graph = &G1;
+
+// 	AddressMap M1;
+// 	// G1 graph containes the present selected paths
+// 	leda_node s_G1 = addNode(G1, s, M1);  //Create a new node S in G, M[s]=new node created in G
+
+// 	int monteCarloCount = 0;
+
+// 	ColorList* L1 = new ColorList(); //selected colors to return
+// 	ColorSet selected_colors; //for fast lookup
+	
+// 	bool terminate = false;
+
+
+// 	return L1;
+// }
 
 //
 // Implementation of heuristic for MAX reliability in multiple source and targets.
@@ -327,7 +409,8 @@ ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r)
 	//add new s1 and t1 to graph
 	double newCapacity = G.logCapacity ? 0 : 1;
 	std::vector<leda_edge> newEdges = extendGraph(&G, S, T, newCapacity);
-
+    
+	// h_array<Node,PathSet> topRPaths;
 	PathSet combinedPaths;
 
 	int i = 1;
@@ -354,6 +437,8 @@ ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r)
 			}
 			P.clear();
 		}
+		// topRPaths[t]=combinedPaths;
+		// combinedPaths.clear();
 	}
 
 	//get top k-colors
@@ -362,9 +447,13 @@ ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r)
 	ColorList* L_top = topKColorsOfMaxTarget(combinedPaths, G, NEW_S, T, k, &p);
 
 	// clean up path set
-	long j;
-	forall_defined(j, combinedPaths) 
-		combinedPaths[j].clear();
+	// PathSet P;
+	// forall(P, topRPaths){
+		long j;
+		forall_defined(j,combinedPaths){
+			combinedPaths[j].clear();
+		}
+	// }
 
 	combinedPaths.clear();
 	
