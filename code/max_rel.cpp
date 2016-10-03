@@ -43,8 +43,9 @@ inline leda_node addNode(RelationGraph& G1, Node u, AddressMap& M1)
 		u1 = G1.new_node(NodeAttr(u));
 		M1[u]= u1;
 	}
-	else
+	else{
 		u1 = M1[u];
+	}
 
 	return u1;
 }
@@ -136,18 +137,20 @@ static void reduceGraph(ColoredGraph& G1, std::vector<leda_edge> newEdges)
 double sumOfTargetNodeProbabilities(ColoredGraph& Gc1,NodeSet& Targets, AddressMap& M1){
 	random_source S(1,10);
 	double count=0,sum=0;
-	cout<<"DOing sum monte carlo"<<endl;
 
     Node t;
 	forall(t,Targets){
 	count = monteCarlo(M1[NEW_S], M1[t], S, Gc1);
 	sum+=count;
 	}
-	cout<<"END doing sum monte carlo. Summed value:"<<sum<<endl;
+
 	return sum;
 }
 
-//
+
+
+
+// Previos Method
 // Implementation of top-K colors algorithm for multiple targets.
 // Accessibility: public
 // Parameters:
@@ -182,6 +185,13 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	AddressMap M1;
 	// G1 graph contains the present selected paths
 	leda_node s_G1 = addNode(G1, s, M1);  //Create a new node S in G, M[s]=new node created in G
+    
+	// Initialize the addressmap for all targets
+	Node t;
+	forall(t,T){
+	addNode(G1,t,M1);
+
+	}
 
 	int monteCarloCount = 0;
 
@@ -191,8 +201,6 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	bool terminate = false;
 	while(topr_paths.size()!=0 && terminate != true) 
 	{
-		cout<<"PATHS THAT REMAIN"<<endl;
-		cout<<topr_paths<<endl;
 		list<long>::item it;
 		//For each path in the list of top r paths
 		//Delete paths that have the colors that are already selected_colors
@@ -232,7 +240,6 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 				topr_paths.del_item(it);
 			}
 		}
-		cout<<"MAIN AEAS ENTERED"<<endl;
 		list<long>::item best_path_item = NULL;
 		Node visited_target;
 		double best_path_sum = -1;//any negative value will work
@@ -244,9 +251,7 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 
 			int i = topr_paths.contents(it);
 			Path& path = P[i];
-			
 			leda_node u_G1 = s_G1;
-
 			leda::list<leda_edge> edgeList;
 			leda_edge e;
 			Node v_G;
@@ -255,15 +260,13 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 			{
 				EdgeAttr e_G = G.Graph->inf(e);
 				if(G.logCapacity) e_G.capacity = exp(-e_G.capacity / 1000);
-				v_G = G.Graph->inf(G.Graph->target(e)).id;	
+				v_G = G.Graph->inf(G.Graph->target(e)).id;
 				leda_node v_G1 = addNode(G1, v_G, M1); //add node to G1
 
 				edgeList.push(G1.new_edge(u_G1, v_G1, e_G));
 				if(!G.directed) edgeList.push(G1.new_edge(v_G1, u_G1, e_G));
-
 				u_G1 = v_G1;
 			}
-
 			monteCarloCount++;
 			double sum = sumOfTargetNodeProbabilities(Gc1,T,M1);
 			if(sum > best_path_sum)
@@ -279,7 +282,7 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 			G1.del_edges(edgeList);
 			edgeList.clear();
 		}
-		cout<<"ADDING PATHS TO GRAPH"<<endl;
+
 		if(best_path_item != NULL) 
 		{
 			int i = topr_paths.contents(best_path_item);
@@ -321,7 +324,7 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 	// 	std::max(*p, cost);
 	// 	}
 	// }
-	cout<<"RETURNING TIME"<<endl;
+	// cout<<"RETURNING TIME"<<endl;
 	return L1;
 }
 
@@ -343,6 +346,7 @@ ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r)
 	std::vector<leda_edge> newEdges = extendGraph(&G, S, T, newCapacity);
     
 	// h_array<Node,PathSet> topRPaths;
+	// topRShortestPathsTSet
 	PathSet combinedPaths;
 
 	int i = 1;
@@ -363,10 +367,10 @@ ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r)
 				newPath.append(getEdge(NEW_S, s, G));
 				leda_edge e; forall(e, path) newPath.append(e);
 				// newPath.append(getEdge(t, NEW_T, G));
-
-				i++;
 				combinedPaths[i] = newPath;
-				cout<<"Index:"<<i<<" PATH: "<<printPath(newPath,G)<<endl;
+				++i;
+				
+				// cout<<"Index:"<<i<<" PATH: "<<printPath(newPath,G)<<endl;
 			}
 			P.clear();
 		}
