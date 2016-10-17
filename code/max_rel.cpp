@@ -128,6 +128,83 @@ static void reduceGraph(ColoredGraph& G1, std::vector<leda_edge> newEdges)
 }
 
 //
+// Monte Carlo2 sampling
+// Accessibility: public
+// Parameters:
+//	  s1:   the source node. Must be element of G.
+//    t1:   the destination node set. Must be element of G.
+//    rand: a random number source
+//    Gc1:  the graph.
+// Returns: A reachability estimation between s1 and t1.
+//
+inline double monteCarlo2(leda_node s1, LedaNodeSet &t1, random_source& rand, ColoredGraph& Gc1) 
+{
+	RelationGraph& G1 = *Gc1.Graph;
+
+	slist<leda_node> nodes1, nodes2;
+	slist<leda_node> &old_n = nodes1, &new_n = nodes2;
+	LedaNodeSet temp_target;
+
+	// actual MC Simulation
+	double count = 0;
+	for(int k = 1; k < MONTECARLO_LOOP; k++) 
+	{  
+		old_n.clear();
+		decrementRunId(Gc1);
+
+		old_n.append(s1);
+		G1.assign(s1, NodeAttr(Gc1.runId));
+
+		//clear the target set for the new iteration
+		temp_target.clear();
+		// re-initialise all target nodes
+		temp_target=t1;
+		bool terminate = false;
+		while(terminate != true && old_n.size() != 0) 
+		{
+			new_n.clear();
+
+			leda_node u;
+			forall(u, old_n) 
+			{
+				leda_edge e;
+				forall_adj_edges(e, u) 
+				{
+					leda_node v = G1.target(e);
+					int lastVisited = G1.inf(v).id; //absuse node id as last visited flag. node id is not needed for baseline calculation
+					if(lastVisited != Gc1.runId)
+					{
+						double num;
+						rand >> num;
+						if(num <= G1.inf(e).capacity)
+						{                      
+							new_n.append(v);
+							G1.assign(v, NodeAttr(Gc1.runId));
+							if(temp_target.defined(v)) 
+							{
+								count++;
+								temp_target.undefine(v);
+								if(temp_target.size()==0){
+							        terminate = true;
+								    goto nextwhile;
+								}
+								
+							}
+						}
+					}
+				}
+			}
+
+			//swap
+			slist<leda_node> &tmp = old_n;
+			old_n = new_n;
+			new_n = tmp;
+		}
+		nextwhile:;
+	}
+	return count;
+}
+
 // Implementation of the objective function to find sum of probabilities of each target.
 // Accessibility: public
 // Parameters: 
@@ -136,13 +213,14 @@ static void reduceGraph(ColoredGraph& G1, std::vector<leda_edge> newEdges)
 // Returns: An estimation of the sum of probabilities of reaching each target node
 double sumOfTargetNodeProbabilities(ColoredGraph& Gc1,NodeSet& Targets, AddressMap& M1){
 	random_source S(1,10);
-	double count=0,sum=0;
-
     Node t;
+	LedaNodeSet targets;
+	targets.clear();
 	forall(t,Targets){
-	count = monteCarlo(M1[NEW_S], M1[t], S, Gc1);
-	sum+=count;
+		targets[M1[t]]=1;
 	}
+
+	double sum=monteCarlo2(M1[NEW_S], targets, S, Gc1);
 
 	return sum;
 }
@@ -315,16 +393,6 @@ ColorList* const topKColorsOfMaxTarget(PathSet& P, ColoredGraph& G, Node s, Node
 
     } //end while
 	
-	// if(pNeedsRefresh) //refresh p when there were path selected without doing a monteCarlo estimation. //?? 
-	// {
-	// 	Node t;
-	// 	forall(t,T){
-	// 	monteCarloCount++;
-	// 	double cost = monteCarlo(M1[NEW_S], M1[t], S, Gc1); //monte carlo sampling cost estimation
-	// 	std::max(*p, cost);
-	// 	}
-	// }
-	// cout<<"RETURNING TIME"<<endl;
 	return L1;
 }
 
