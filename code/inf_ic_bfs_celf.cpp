@@ -202,6 +202,7 @@ int main(int argc, char **argv){
 
       curIds.push_back(n);
       visited[n] = true;
+      if(targets.find(n)!=targets.end())
       total++;
 
       while (!curIds.empty()) {
@@ -217,6 +218,7 @@ int main(int argc, char **argv){
             if(num < capacity[o1][p]) {
               nextIds.push_back(o2);
               visited[o2] = true;
+              if(targets.find(o2)!=targets.end())
               total++;
             }
           }
@@ -266,11 +268,13 @@ int main(int argc, char **argv){
         for(k=0; k<i; k++) {
           o2 = seeds[k];
           curIds.push_back(o2);
+          if(targets.find(o2)!=targets.end())
           total++;
           visited[o2] = true;
         }
         curIds.push_back(o1);
         visited[o1] = true;
+        if(targets.find(o1)!=targets.end())
         total++;
 
         while (!curIds.empty()) {
@@ -284,6 +288,7 @@ int main(int argc, char **argv){
               if(num < capacity[o2][p]) {
                 nextIds.push_back(o3);
                 visited[o3] = true;
+                if(targets.find(o3)!=targets.end())
                 total++;
               }
             }
