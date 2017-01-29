@@ -7,4 +7,3 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /home/code
 
-CMD ["/bin/bash"]

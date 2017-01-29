@@ -253,6 +253,7 @@ static int callEval(std::string algo, std::string dataFile, std::string inputFil
 		else if(algo == "avg") metric = maxavg_evaluateMetric(G, S, T, selectedColors); 
 		else if(algo == "max") metric = maxmax_evaluateMetric(G, S, T, selectedColors); 
 		else if(algo == "min") metric = maxMin_evaluateMetric(G, S, T, selectedColors);
+		else if(algo == "rel") metric = maxRel_evaluateMetric(G, S, T, selectedColors); 
 		else if(algo == "conn") {
 			LedaNodeSet ST; leda_node n1;
 			forall_defined(n1, S1) ST[n1] = 1;
@@ -319,6 +320,7 @@ int main(int argc, char* argv[])
 		std::cout << "                sum   Multi s-t with max sum" << endl;
 		std::cout << "                max   Multi s-t with max max" << endl;
 		std::cout << "                min   Multi s-t with max min" << endl;
+		std::cout << "                rel   Multi s-t with max rel prob" << endl;
 		std::cout << "                conn  Multi S with max connectivity" << endl;
 		std::cout << "<datafile>:  File containing the graph data" << endl;
 		std::cout << "<queryfile>: File containing the queries" << endl;
@@ -454,6 +456,7 @@ int main(int argc, char* argv[])
 		else if(algo == "min" && mode == "b1") L1 = maxMin_baseline1(G, S, T, k);
 		else if(algo == "min" && mode == "b2") L1 = maxMin_baseline2(G, S, T, k); 
 		else if(algo == "min") L1 = maxMin(G, S, T, k, r); 
+		else if(algo == "rel") L1 = maxRel(G, S, T, k, r); 
 		else if(algo == "conn") {
 			LedaNodeSet ST; leda_node n1;
 			forall_defined(n1, S1) ST[n1] = 1;

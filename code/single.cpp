@@ -200,18 +200,18 @@ inline double monteCarlo(leda_node s1, leda_node t1, random_source& rand, Colore
 // Adds node u to G1 and registers reverse lookup in M1
 // Accessibility: public
 //
-inline leda_node addNode(RelationGraph& G1, Node u, AddressMap& M1)
-{
-	leda_node u1;
-	if(!M1.defined(u)) {
-		u1 = G1.new_node(NodeAttr(u));
-		M1[u]= u1;
-	}
-	else
-		u1 = M1[u];
+// inline leda_node addNode(RelationGraph& G1, Node u, AddressMap& M1)
+// {
+// 	leda_node u1;
+// 	if(!M1.defined(u)) {
+// 		u1 = G1.new_node(NodeAttr(u));
+// 		M1[u]= u1;
+// 	}
+// 	else
+// 		u1 = M1[u];
 
-	return u1;
-}
+// 	return u1;
+// }
 
 //
 // Implementation of top-K colors algorithm.
