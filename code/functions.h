@@ -83,6 +83,12 @@ ColorList* maxConn_baseline2(ColoredGraph& G, LedaNodeSet& S, int topk);
 double maxConn_evaluateMetric(ColoredGraph& G, LedaNodeSet& S, const h_array <long, int>& selectedColors);
 
 //
+// functions in max_avg.cpp
+//
+double maxRel_evaluateMetric(ColoredGraph& G, NodeSet S, NodeSet T, const h_array <long, int>& selectedColors);
+ColorList* maxRel(ColoredGraph& G, NodeSet& S, NodeSet& T, int k, int r);
+
+//
 // functions in debug.cpp
 //
 std::string printColorSet(ColorSet& cs);
