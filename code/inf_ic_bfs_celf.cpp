@@ -315,7 +315,7 @@ int main(int argc, char **argv){
         }
         visited.clear();
       }
-      sout << "recompute_new " << i+1 << " " << o1 << " " << (double) total/Simulation << " " << flag[o1] << std::endl;
+      //sout << "recompute_new " << i+1 << " " << o1 << " " << (double) total/Simulation << " " << flag[o1] << std::endl;
       if(cur < (double) total/Simulation)
         count.push(NodePrio(o1, (double) total/Simulation - cur));
       else
