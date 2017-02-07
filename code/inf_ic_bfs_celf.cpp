@@ -59,7 +59,7 @@ int main(int argc, char **argv){
  
   char line[50000];
   char *s, *s1,*target,*color;
-  int wt, o1, o2, i;
+  int wt, o1, o2, id, i;
   srand(time(NULL)); 
 
   neighbors_size.resize(max+1);   
@@ -71,6 +71,25 @@ int main(int argc, char **argv){
 
   clock_t start, end, start1, end1;
 
+/*   Read Color File   */
+  g_stream.open(colorsfile);
+   while(!g_stream.eof()) {
+    g_stream.getline(line,500000, '\n');
+    if (strlen(line) == 0)
+      continue;
+    else {
+      color = strtok(line," ");
+      while(color!=NULL){
+      colors.insert(atol(color));
+      //std::cout<<"Reading color "<<*color<<std::endl;
+      color=strtok(NULL," ");
+      }
+      
+    }
+   }
+
+ g_stream.close();
+
   /*  Read Uncertain Graph */
   /*  To initialise graph vectors with proper size  */
   g_stream.open(sourcefile);
@@ -80,8 +99,12 @@ int main(int argc, char **argv){
     if (strlen(line) == 0)
       continue;
     else {
-      o1 = atol(strtok(line,"_"));
-      //o2 = atol(strtok(NULL," "));
+      o1 = atol(strtok(line," "));
+      o2 = atol(strtok(NULL," "));
+      wt = strtod(strtok(NULL, " "),NULL)*100;
+      id = atol(strtok(NULL," "));
+      if (!colors.empty() && colors.find(id)==colors.end())
+        continue;
       neighbors_size[o1]++;
       //neighbors_size[o2]++;
     }
@@ -92,7 +115,7 @@ int main(int argc, char **argv){
    graph[i].resize(neighbors_size[i]+1);
    capacity[i].resize(neighbors_size[i]+1);
   }
-
+ 
   for(i=0; i<max; i++) 
     neighbors_size[i] = 0;
 
@@ -103,10 +126,13 @@ int main(int argc, char **argv){
     if (strlen(line) == 0)
       continue;
     else {
-      o1 = atol(strtok(line,"_"));
+      o1 = atol(strtok(line," "));
       o2 = atol(strtok(NULL," "));
       wt = strtod(strtok(NULL, " "),NULL)*100;
-
+      id = atol(strtok(NULL," "));
+      
+      if (!colors.empty() && colors.find(id)==colors.end())
+        continue;
       i = neighbors_size[o1];
       graph[o1][i] = o2;
       capacity[o1][i] = wt;
@@ -119,6 +145,14 @@ int main(int argc, char **argv){
     }
   }
   g_stream.close();
+   
+  // Reading Graph 
+  // int j;
+  // for(i=0; i<graph.size(); i++){
+  //   for(j=0; j<graph[i].size(); j++){
+  //     std::cout<<"Node "<<i<<"-- Node"<<graph[i][j]<<"---> Colour"<<j<<" Wt: "<<capacity[i][j]<<std::endl;
+  //   }
+  // }
 
 //Targets
   g_stream.open(targetsfile);
@@ -139,35 +173,18 @@ int main(int argc, char **argv){
 
  g_stream.close();
 
-//Colors
-  g_stream.open(colorsfile);
-   while(!g_stream.eof()) {
-    g_stream.getline(line,500000, '\n');
-    if (strlen(line) == 0)
-      continue;
-    else {
-      color = strtok(line," ");
-      while(color!=NULL){
-      colors.insert(atol(color));
-      //std::cout<<"Reading color "<<*color<<std::endl;
-      color=strtok(NULL," ");
-      }
-      
-    }
-   }
 
- g_stream.close();
 
-  // typedef std::set<int>::iterator setIterator;
-  // setIterator it;
+  // // typedef std::set<int>::iterator setIterator;
+  // // setIterator it;
 
-  // for(it=targets.begin(); it != targets.end(); it++){
-  //   std::cout<<*it<<" "<<std::endl;
-  // }
+  // // for(it=targets.begin(); it != targets.end(); it++){
+  // //   std::cout<<*it<<" "<<std::endl;
+  // // }
 
-  // for(it=colors.begin(); it != colors.end(); it++){
-  //   std::cout<<*it<<" "<<std::endl;
-  // }
+  // // for(it=colors.begin(); it != colors.end(); it++){
+  // //   std::cout<<*it<<" "<<std::endl;
+  // // }
 
   /*  Find Best Seed Nodes */
 
@@ -182,7 +199,7 @@ int main(int argc, char **argv){
   for(i=0; i<topk+1; i++)
     seeds[i] = -1;
 
-  int j, k, n, m, p, o3, recompute, num;
+  int  j, k, n, m, p, o3, recompute, num;
   double total, cur;
   sout.open(outfile);
 
@@ -228,7 +245,7 @@ int main(int argc, char **argv){
       }
       end1 = clock();
       visited.clear();
-      std::cout << "Simulation " << (double) (end1-start1)/CLOCKS_PER_SEC << std::endl;          
+      //std::cout << "Simulation " << (double) (end1-start1)/CLOCKS_PER_SEC << std::endl;          
     }
     //sout << "calculate " << i+1 << " " << n << " " << total/Simulation << std::endl;
     //------------ Update PQ and flag
@@ -258,7 +275,7 @@ int main(int argc, char **argv){
     }
     else {
       recompute++;
-      std::cout << "recompute " << i+1 << " " << o1 << " " << total << " " << flag[o1] << std::endl;
+      //std::cout << "recompute " << i+1 << " " << o1 << " " << total << " " << flag[o1] << std::endl;
       total = 0;
       for(j=1; j<=Simulation; j++) {
         curIds.clear();
@@ -298,7 +315,7 @@ int main(int argc, char **argv){
         }
         visited.clear();
       }
-      //sout << "recompute_new " << i+1 << " " << o1 << " " << (double) total/Simulation << " " << flag[o1] << std::endl;
+      sout << "recompute_new " << i+1 << " " << o1 << " " << (double) total/Simulation << " " << flag[o1] << std::endl;
       if(cur < (double) total/Simulation)
         count.push(NodePrio(o1, (double) total/Simulation - cur));
       else
@@ -311,3 +328,8 @@ int main(int argc, char **argv){
   sout << "Time " << (double) (end-start)/CLOCKS_PER_SEC << std::endl;  
   sout.close();      
 } 
+
+
+
+
+  
