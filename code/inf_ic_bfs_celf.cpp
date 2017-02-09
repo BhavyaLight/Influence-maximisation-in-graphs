@@ -45,14 +45,14 @@ int main(int argc, char **argv){
   strcpy(sourcefile, argv[1]);
   strcpy(outfile, argv[2]);
   strcpy(targetsfile, argv[3]);
-  strcpy(colorsfile, argv[4]);
-  int topk = atoi(argv[5]);  
-  int max = atoi(argv[6]);  
+ // strcpy(colorsfile, argv[4]);
+  int topk = atoi(argv[4]);  
+  int max = atoi(argv[5]);  
 
   std::vector <std::vector<int> > graph(max + 1, std::vector<int>());
   std::vector <std::vector<int> > capacity(max + 1, std::vector<int>());
   std::set<int> targets;
-  std::set<int> colors;
+//  std::set<int> colors;
   std::vector <int> neighbors_size; 
   
   int Simulation = 1000;
@@ -71,24 +71,24 @@ int main(int argc, char **argv){
 
   clock_t start, end, start1, end1;
 
-/*   Read Color File   */
-  g_stream.open(colorsfile);
-   while(!g_stream.eof()) {
-    g_stream.getline(line,500000, '\n');
-    if (strlen(line) == 0)
-      continue;
-    else {
-      color = strtok(line," ");
-      while(color!=NULL){
-      colors.insert(atol(color));
-      //std::cout<<"Reading color "<<*color<<std::endl;
-      color=strtok(NULL," ");
-      }
+// /*   Read Color File   */
+//   g_stream.open(colorsfile);
+//    while(!g_stream.eof()) {
+//     g_stream.getline(line,500000, '\n');
+//     if (strlen(line) == 0)
+//       continue;
+//     else {
+//       color = strtok(line," ");
+//       while(color!=NULL){
+//       colors.insert(atol(color));
+//       //std::cout<<"Reading color "<<*color<<std::endl;
+//       color=strtok(NULL," ");
+//       }
       
-    }
-   }
+//     }
+//    }
 
- g_stream.close();
+//  g_stream.close();
 
   /*  Read Uncertain Graph */
   /*  To initialise graph vectors with proper size  */
@@ -102,9 +102,7 @@ int main(int argc, char **argv){
       o1 = atol(strtok(line," "));
       o2 = atol(strtok(NULL," "));
       wt = strtod(strtok(NULL, " "),NULL)*100;
-      id = atol(strtok(NULL," "));
-      if (!colors.empty() && colors.find(id)==colors.end())
-        continue;
+
       neighbors_size[o1]++;
       //neighbors_size[o2]++;
     }
@@ -129,10 +127,7 @@ int main(int argc, char **argv){
       o1 = atol(strtok(line," "));
       o2 = atol(strtok(NULL," "));
       wt = strtod(strtok(NULL, " "),NULL)*100;
-      id = atol(strtok(NULL," "));
-      
-      if (!colors.empty() && colors.find(id)==colors.end())
-        continue;
+
       i = neighbors_size[o1];
       graph[o1][i] = o2;
       capacity[o1][i] = wt;

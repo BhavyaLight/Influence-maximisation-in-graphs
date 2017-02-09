@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # input
-# $1 - Graph file part1 
-# $2 - Graph file part2
+# $1 - Graph file  
+# $2 - Graph file 
 # $3 - targetfile - NO NEW LINES IN THIS
 # $4 - number of seed nodes required
 # $5 - max number of nodes in graph
@@ -18,8 +18,11 @@
 
 echo "This is your input: $1 $2 $3 $4 $5 $6 $7"
 
+echo "Converting graph file to correct format..."
+python format_conversion.py --file $1 --cpath samplecolor.txt
+
 echo "Running code to find seed nodes..."
-./inf_ic_bfs_celf $1 part1_output.txt $3 samplecolor.txt $4 $5
+./inf_ic_bfs_celf corrected_graph.txt part1_output.txt $3 $4 $5
 
 echo "Converting output to correct format for part 2 of the code..."
 # Result modification for part 2
