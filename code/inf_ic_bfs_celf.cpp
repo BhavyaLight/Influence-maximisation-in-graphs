@@ -1,4 +1,3 @@
-
 // ----------------------------------------------------- //
 //  Influence Maximization with IC Model+CELF [c++ stl]  //
 //                   Arijit Khan                         //
@@ -141,13 +140,13 @@ int main(int argc, char **argv){
   }
   g_stream.close();
    
-  // Reading Graph 
-  // int j;
-  // for(i=0; i<graph.size(); i++){
-  //   for(j=0; j<graph[i].size(); j++){
-  //     std::cout<<"Node "<<i<<"-- Node"<<graph[i][j]<<"---> Colour"<<j<<" Wt: "<<capacity[i][j]<<std::endl;
-  //   }
-  // }
+  Reading Graph 
+  int j;
+  for(i=0; i<graph.size(); i++){
+    for(j=0; j<graph[i].size(); j++){
+      std::cout<<"Node "<<i<<"-- Node"<<graph[i][j]<<"---> Colour"<<j<<" Wt: "<<capacity[i][j]<<std::endl;
+    }
+  }
 
 //Targets
   g_stream.open(targetsfile);

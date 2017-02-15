@@ -5,10 +5,12 @@ NEW_FILE="corrected_graph.txt"
 def give_output(file, cpath):
     colorList=[]
     for line in open(cpath,mode="r"):
-        colorList=line.split(" ")
+        colorList=line.strip().split(" ")
+        print "Color list:",
+        print colorList
     write_file=open(NEW_FILE,mode="w")
     for line in open(file, mode="r"):
-        items = line.split(" ")
+        items = line.strip().split(" ")
         x = 2
         probNotTaking=1
         for x in range(2,len(items)-1,2):
@@ -21,6 +23,7 @@ def give_output(file, cpath):
         write_file.write(items[0]+" "+items[1]+" "+str(probNotTaking)+"\n")
 
     write_file.close()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fetch the specified number of authors from dblp.xml')
