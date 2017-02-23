@@ -18,8 +18,8 @@
 
 echo "This is your input: $1 $2 $3 $4 $5 $6 $7"
 
-echo "Cleaning previous outputfiles...data will be removed."
-echo "" > statistics.txt
+# echo "Cleaning previous outputfiles...data will be removed."
+# echo "" > statistics.txt
 
 for ((c=1; c<=$2; c++)); 
 do

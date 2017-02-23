@@ -1,3 +1,4 @@
+
 // ----------------------------------------------------- //
 //  Influence Maximization with IC Model+CELF [c++ stl]  //
 //                   Arijit Khan                         //
@@ -140,13 +141,13 @@ int main(int argc, char **argv){
   }
   g_stream.close();
    
-  Reading Graph 
-  int j;
-  for(i=0; i<graph.size(); i++){
-    for(j=0; j<graph[i].size(); j++){
-      std::cout<<"Node "<<i<<"-- Node"<<graph[i][j]<<"---> Colour"<<j<<" Wt: "<<capacity[i][j]<<std::endl;
-    }
-  }
+  // Reading Graph 
+//   int j;
+  // for(i=0; i<graph.size(); i++){
+    // for(j=0; j<graph[i].size(); j++){
+      // std::cout<<"Node "<<i<<"-- Node"<<graph[i][j]<<"---> Colour"<<j<<" Wt: "<<capacity[i][j]<<std::endl;
+     //}
+   //}
 
 //Targets
   g_stream.open(targetsfile);
@@ -193,7 +194,7 @@ int main(int argc, char **argv){
   for(i=0; i<topk+1; i++)
     seeds[i] = -1;
 
-  int  j, k, n, m, p, o3, recompute, num;
+  int  j,k, n, m, p, o3, recompute, num;
   double total, cur;
   sout.open(outfile);
 
@@ -225,7 +226,7 @@ int main(int argc, char **argv){
           for (p=0; p<graph[o1].size(); p++) {
             o2 = graph[o1][p];
             if (visited[o2]) continue;
-            num = (rand()/double(RAND_MAX))*1000;
+            num = (rand()/double(RAND_MAX))*100;
             if(num < capacity[o1][p]) {
               nextIds.push_back(o2);
               visited[o2] = true;
@@ -295,7 +296,7 @@ int main(int argc, char **argv){
             for (p=0; p<graph[o2].size(); p++) {
               o3 = graph[o2][p];
               if (visited[o3]) continue;
-              num = (rand()/double(RAND_MAX))*1000;
+              num = (rand()/double(RAND_MAX))*100;
               if(num < capacity[o2][p]) {
                 nextIds.push_back(o3);
                 visited[o3] = true;
